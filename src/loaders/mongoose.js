@@ -18,6 +18,4 @@ export default async () => {
     .on('SIGTERM', () => connection.close());
 
   await mongoose.connect(process.env.DATABASE_URI);
-
-  return connection;
 };

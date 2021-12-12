@@ -1,24 +1,14 @@
 import { config } from 'dotenv';
-import { Bot, InlineKeyboard, session } from 'grammy';
-import { MongoDBAdapter } from '@satont/grammy-mongodb-storage';
+import { Bot, InlineKeyboard } from 'grammy';
 import mongooseLoader, { userModel } from './mongoose.js';
 
 config();
 
-const connection = await mongooseLoader();
+await mongooseLoader();
 
 export const bot = new Bot(process.env.TG_TOKEN);
-bot.use(
-  session({
-    storage: new MongoDBAdapter({
-      collection: connection.db.collection('users'),
-    }),
-  }),
-);
 
 const users = await userModel.find();
-console.log(users);
-
 const userListInlineKeyBoard = new InlineKeyboard().add(
   ...users.map((item) => ({
     text: item.displayName,
