@@ -9,22 +9,19 @@ await mongooseLoader();
 export const bot = new Bot(process.env.TG_TOKEN);
 
 const users = await userModel.find();
-const userListInlineKeyBoard = new InlineKeyboard().add(
-  ...users.map((item) => ({
-    text: item.displayName,
-    callback_data: item.displayName,
-  })),
-);
+const userListInlineKeyBoard = new InlineKeyboard();
+users.forEach(({displayName}) => {
+  userListInlineKeyBoard.text(displayName, displayName).row();
+});
 
 bot.on('callback_query:data', async (ctx) => {
-  await ctx.answerCallbackQuery('Эльфы делают свою работу...');
   const { data: currentUser, from } = ctx.callbackQuery;
   const users = await userModel.find();
-
+  await ctx.answerCallbackQuery('Эльфы сделали свою работу...');
   const selectedUser = users.find((item) => item.from === from.id);
   if (selectedUser) {
     await ctx.reply(
-      `Вы уже стали Тайным Сантой для: ${selectedUser.displayName}`,
+      `Вы уже стали Тайным Сантой 🎅 для: ${selectedUser.displayName}`,
     );
     return;
   }
@@ -33,7 +30,7 @@ bot.on('callback_query:data', async (ctx) => {
     (item) => !item.from && item.displayName !== currentUser,
   );
   if (!selectableList.length) {
-    await ctx.reply('Упс, закончились свободные пользователи.');
+    await ctx.reply('Упс, закончились свободные пользователи');
     return;
   }
 
@@ -43,7 +40,7 @@ bot.on('callback_query:data', async (ctx) => {
   user.from = from.id;
 
   await user.save();
-  await ctx.reply(`Вы Тайный Санта для: ${res.displayName}`);
+  await ctx.reply(`Вы Тайный Санта 🎅 для: ${res.displayName}`);
 });
 
 bot.command(['start', 'remind'], async (ctx) => {
@@ -51,9 +48,7 @@ bot.command(['start', 'remind'], async (ctx) => {
   const user = await userModel.findOne({ from: ctx.update.message.from.id });
 
   if (user && command !== 'remind') {
-    await ctx.reply(
-      `Вы уже стали Тайным Сантой для: ${user.displayName}`,
-    );
+    await ctx.reply(`Вы уже стали Тайным Сантой 🎅 для: ${user.displayName}`);
     return;
   }
 
@@ -66,7 +61,7 @@ bot.command(['start', 'remind'], async (ctx) => {
 
   await ctx.reply(
     user
-      ? `Вы Тайный Санта для: ${user.displayName}`
-      : 'Пользователь ещё не назначен: выполните команду /start.',
+      ? `Вы Тайный Санта 🎅 для: ${user.displayName}`
+      : 'Пользователь ещё не назначен: выполните команду /start',
   );
 });
